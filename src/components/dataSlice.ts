@@ -13,12 +13,12 @@ const DataSlice: any = createSlice({
     updateData: (state, action) => {
       state.data = action.payload;
     },
-    filterData: (state: any, action) => {
-      const userInput = action.payload.toLowerCase();
+    filterData: (state: any, action:any) => {
+      const userInput = typeof action.payload === 'string' ? action.payload.toLowerCase() : '';
       state.filteredData = state.data.filter(
         (item: any) =>
-          item[0]?.toLowerCase().includes(userInput) ||
-          item[1]?.toLowerCase().includes(userInput)
+          (item[0] && item[0].toLowerCase().includes(userInput)) ||
+          (item[1] && item[1].toLowerCase().includes(userInput))
       );
     },
     EditedData: (state, action) => {

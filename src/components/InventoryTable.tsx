@@ -35,8 +35,9 @@ const InventoryTable = () => {
     dispatch(updateData(parsedData));
   };
 
+  //function for rendering the data as a table on UI
   const displayData = (data: any) => {
-    if (!Array.isArray(data))    // To check if data is not an array
+    if (!Array.isArray(data))    // To check if data is a valid array
       return null; 
 
     return data?.map((rowData: any, index: any) => (
@@ -48,8 +49,9 @@ const InventoryTable = () => {
     ));
   };
 
+  //function for handling file upload and import process
   const importCSV = () => {
-    const reader = new FileReader();
+    const reader = new FileReader();       //FileReader Api to read the contents of uploaded file
     reader.onload = function (e: any) {
       let csv = e.target.result;
       setCSVData(csv);
@@ -58,13 +60,13 @@ const InventoryTable = () => {
     reader.readAsText(file, 'UTF-8');
   };
 
-
+  // taking input value from user for filtering the data
   const handleInputChange = (e: any) => {
     setUserInput(e.target.value);
   };
 
   const handleFilterClick = () => {
-    if (userInput) {
+    if (userInput) {          //check for filtering data-if user inputs any value then only perform filter action
       dispatch(filterData(userInput)); 
       setFilterActive(!filterActive);
       setFilteredDataPresent(false);
@@ -74,19 +76,20 @@ const InventoryTable = () => {
   };
 
   const handleRemoveFilterClick = () => {
-    setFilterActive(false);
+    setFilterActive(false); //filter disabled
     setFilteredDataPresent(true); // flag to indicate filtered data is not present
     const filteredValue = filteredDataSet[0] && filteredDataSet[0][0];
     const foundIndex = data?.findIndex((dataRow: any) => dataRow[0] === filteredValue);
     if (foundIndex !== -1 && editedData && editedData[0]) {
-      const newData = [...data]; 
+      const newData = [...data];    // Created a copy of the data array bcoz modifying the data directly can cause side effects and can lead to data loss.
       newData[foundIndex] = editedData[0];
       dispatch(updateData(newData));
     }
   };
 
+  //for exporting csv - save the csv file
   const exportCSV = () => {
-    if (data.length > 0) {
+    if (data.length > 0) {        //check for if data is available, then only export the CSV file.
       // const csvContent = data;
       const headers = getHeadersFromCSVData(csvData); // get headers from csvdata
       const csvContent = convertToCSV(headers, data);
@@ -96,12 +99,13 @@ const InventoryTable = () => {
       alert('No CSV data available to export');
     }
   };
+
+  //function to split down only headers from csvData
   const getHeadersFromCSVData = (csvData: any) => {
     const lines = csvData.split('\n');
-    const headers = lines[0].split('\r')[0].split(','); 
+    const headers = lines[0].split('\r')[0].split(',');   //first line of csv split using comma
     return headers;
   };
-
 
   const convertToCSV = (headers: any, data: any) => {
     const headerRow = headers.join(',');
@@ -110,7 +114,7 @@ const InventoryTable = () => {
   };
 
   const handleUpdateInventory = () => {
-    if (csvData) {
+    if (csvData) {        //check to open dailog box
       setIsDialogOpen(true);
     } else {
       alert('No CSV data available to update');
@@ -186,10 +190,11 @@ const InventoryTable = () => {
         </table>
       }
 
-      
+       {/* for rendering DailogBox component  */}
       {isDialogOpen && (
         <DialogBox onClose={() => setIsDialogOpen(false)} filteredData={filteredDataSet} />
       )}
+
     </>
 
   );

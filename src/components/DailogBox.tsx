@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { EditedData} from "./dataSlice";
-import { useDispatch } from "react-redux";
+import { EditedData, updateData } from "./dataSlice";
+import { useDispatch, useSelector } from "react-redux";
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import { Button } from "@material-ui/core";
@@ -9,7 +9,10 @@ const DialogBox = ({ onClose, filteredData }: { onClose: any, filteredData: any 
     const dispatch = useDispatch();
     const [stockData, setStockData] = useState([...filteredData]);
     const [editedStockData, setEditedStockData] = useState<any>([]);
+    //extract data from redux
+    const data = useSelector((state: any) => state.dataslice.data);
 
+    //function for updating stock values  
     const handleStockChange = (e: any, index: any) => {
         const { name, value } = e.target;
         setEditedStockData((prevState: any) => {
@@ -20,6 +23,7 @@ const DialogBox = ({ onClose, filteredData }: { onClose: any, filteredData: any 
     };
 
     const handleSaveClick = () => {
+        //for updating the filtered data
         const updatedFilteredData = filteredData.map((row: any, index: any) => {
             const updatedRow = [...row];
             updatedRow[8] = editedStockData[index]?.LocA_Stock || row[8];
@@ -27,7 +31,24 @@ const DialogBox = ({ onClose, filteredData }: { onClose: any, filteredData: any 
             return updatedRow;
         });
         dispatch(EditedData(updatedFilteredData));
-        onClose();
+
+        //for deleting particular entry from main csv data
+        const deletedValue = filteredData[0][0];
+        const deletedIndex = data.findIndex((row: any) => row[0] === deletedValue);
+
+        const updatedData = [...data];
+        if (deletedIndex !== -1) {
+            updatedData.splice(deletedIndex, 1);
+        }
+        dispatch(updateData(updatedData));
+
+        onClose();      //Closing dailog box
+    };
+
+    const handleDeleteRow = (index: number) => {
+        const updatedStockData = [...stockData];    //deleting from dailog box
+        updatedStockData.splice(index, 1);
+        setStockData(updatedStockData);
     };
 
     return (
@@ -68,6 +89,11 @@ const DialogBox = ({ onClose, filteredData }: { onClose: any, filteredData: any 
                                         onChange={(e) => handleStockChange(e, index)}
                                         min={0}
                                     />
+                                </td>
+                                <td>
+                                    <Button variant="contained" color="primary" onClick={() => handleDeleteRow(index)}>
+                                        Delete
+                                    </Button>
                                 </td>
                             </tr>
                         ))}
